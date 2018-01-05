@@ -60,7 +60,7 @@ public class ServerSocketSelector {
             Set<SelectionKey> selectedKeys = selector.selectedKeys();  
             Iterator<SelectionKey> itr = selectedKeys.iterator();  //iterator.next() points to first item of the list.
             
-            //browser all items of Set
+            //browser all Event of Set
             while (itr.hasNext()) {  
                 SelectionKey ky = (SelectionKey) itr.next();  
                 if (ky.isAcceptable()) {  //SelectionKey.OP_ACCEPT 
