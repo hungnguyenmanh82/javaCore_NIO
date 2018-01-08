@@ -35,6 +35,7 @@ public class ServerSocketSelector {
         srvSocketChannel.configureBlocking(false);  //false = non-blocking = asynchronous
         
         //============ register ServerSocketChannel to Selector
+      //đây là 4 sự kiện của Socket mà OS thông báo với selector => phải đăng ký với OS
         /**
          * SelectionKey.OP_ACCEPT    => only for Server
          * SelectionKey.OP_CONNECT   => only for client  (server OP_ACCEPT mean Connected)
@@ -42,7 +43,11 @@ public class ServerSocketSelector {
          * SelectionKey.OP_WRITE
          * 
          */
+        
+        //serversocket chỉ có duy nhất event SelectionKey.OP_ACCEPT 
+        // serversocket ko dùng 3 event còn lại ở trên => 3 event còn lại dùng cho ClientSocket
         int ops = srvSocketChannel.validOps();  //SelectionKey.OP_ACCEPT
+       //đăng ký với OS bắt event của serverSocket: SelectionKey.OP_ACCEPT và gửi cho Selector
         SelectionKey selectKy = srvSocketChannel.register(selector, ops, null);  
         
         for (;;) {  
