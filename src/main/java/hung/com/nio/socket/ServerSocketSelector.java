@@ -69,7 +69,9 @@ public class ServerSocketSelector {
             while (itr.hasNext()) {  
                 SelectionKey ky = (SelectionKey) itr.next();  
                 if (ky.isAcceptable()) {  //SelectionKey.OP_ACCEPT 
-                    // The new client connection is accepted  
+                    // The new client connection is accepted
+                	//here Buffer send/receiver of socket will be allocate (default 64k/64k)
+                	//if not process here, connect timeout will be control by OS to close the connection
                     SocketChannel clientChannel = srvSocketChannel.accept();  
                     clientChannel.configureBlocking(false);  
                     /**
