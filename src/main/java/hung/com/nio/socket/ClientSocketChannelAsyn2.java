@@ -16,9 +16,9 @@ import java.nio.channels.SocketChannel;
  *    >>java hung.com.nio.socket.ServerSocketSelector
  *    
  * + step2: run ClientSocketSelector app after that (run from eclipse if you want to debug)
- *   >>java hung.com.nio.socket.ClientSocketSelector2
+ *   >>java hung.com.nio.socket.ClientSocketChannelAsyn2
  */
-public class ClientSocketSelectorAsyn2 {
+public class ClientSocketChannelAsyn2 {
 	public static void main (String [] args)  throws IOException, InterruptedException {  
 		InetSocketAddress inetSocketAddress = new InetSocketAddress("localhost", 8080);  //lưu ý port 8080 on Server
 		
@@ -37,14 +37,7 @@ public class ClientSocketSelectorAsyn2 {
 		System.out.println("connect state = " + connected);
 		System.out.println("pending state = " + socketChannel.isConnectionPending());
 		
-		//synchronous finishConnect(): sẽ đáp trả lại connect từ server, nếu chưa có response nó sẽ bị block
-/*		while(!socketChannel.finishConnect()){
-			//never run here because, finishConnect() is synchronous
-			Thread.sleep(100);//10ms
-			System.out.println("--connect state = " + socketChannel.isConnected());
-			System.out.println("--pending state = " + socketChannel.isConnectionPending());
-		}*/
-		
+
 		System.out.println("connect state = " + socketChannel.isConnected());
 		System.out.println("pending state = " + socketChannel.isConnectionPending());
 		

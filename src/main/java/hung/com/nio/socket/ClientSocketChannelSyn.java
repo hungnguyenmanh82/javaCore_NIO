@@ -16,9 +16,9 @@ import java.nio.channels.SocketChannel;
  *    >>java hung.com.nio.socket.ServerSocketSelector
  *    
  * + step2: run ClientSocketSelector app after that (run from eclipse if you want to debug)
- *   >>java hung.com.nio.socket.ClientSocketSelectorSyn
+ *   >>java hung.com.nio.socket.ClientSocketChannelSyn
  */
-public class ClientSocketSelectorSyn {
+public class ClientSocketChannelSyn {
 	public static void main (String [] args)  throws IOException, InterruptedException {  
 		InetSocketAddress inetSocketAddress = new InetSocketAddress("localhost", 8080);  //lưu ý port 8080 on Server
 		

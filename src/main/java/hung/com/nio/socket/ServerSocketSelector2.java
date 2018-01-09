@@ -66,7 +66,6 @@ public class ServerSocketSelector2 {
             Set<SelectionKey> selectedKeys = selector.selectedKeys();  
             Iterator<SelectionKey> itr = selectedKeys.iterator();  //iterator.next() points to first item of the list.
             
-            
             //browser all Event of Set
             while (itr.hasNext()) {  
                 SelectionKey ky = (SelectionKey) itr.next();  
@@ -80,7 +79,7 @@ public class ServerSocketSelector2 {
                 	Thread.sleep(2000); //check with ClientSocketSelector2
                 	System.out.println(" sleep = "+ (System.currentTimeMillis() - startTime) );
                 	
-                	//connect đã đc thiết lập bởi OS từ trc khi accept (đã test)
+                	//connect đã đc thiết lập bởi OS từ trc khi accept (đã test với client đã có connect trc khi accept).
                     SocketChannel clientChannel = srvSocketChannel.accept();  
                     clientChannel.configureBlocking(false);  
                     /**
@@ -90,29 +89,38 @@ public class ServerSocketSelector2 {
                      * SelectionKey.OP_WRITE
                      * 
                      */
-                    //clientChannel.validOps();  // đăng ký tất cả các Operation
-                    clientChannel.register(selector, SelectionKey.OP_READ);  
+//                    clientChannel.validOps();  // = SelectionKey.OP_READ | SelectionKey.OP_WRITE | SelectionKey.OP_CONNECT
+                    clientChannel.register(selector, SelectionKey.OP_READ|SelectionKey.OP_CONNECT);  
 //                    clientChannel.register(selector, SelectionKey.OP_READ|SelectionKey.OP_WRITE); 
                     System.out.println("The new connection is accepted from the client: " + clientChannel);  
                 }  
                 else if (ky.isReadable()) {  //SelectionKey.OP_READ 
+                	System.out.println("***********readable");
                     // Data is read from the client  
                     SocketChannel client = (SocketChannel) ky.channel();  
-                    ByteBuffer buffer = ByteBuffer.allocate(256);  
-                    client.read(buffer);  
-                    System.out.println(buffer.position());
+
+                    ByteBuffer buffer = ByteBuffer.allocate(256);  // new buffer
                     
-                    String output = new String(buffer.array()).trim();  
-                    System.out.println("Message read from client: " + output);  
-                    if (output.equals("Bye Bye")) {  
-                        client.close();  
-                        System.out.println("The Client messages are complete; close the session.");  
-                    }  
+                    int numberByteRead = client.read(buffer);
+                    System.out.println("buffer.position() = "+ buffer.position());
+                    System.out.println("numberByteRead = "+ numberByteRead);
+                    
+                    if(numberByteRead== -1){ // socket was close
+                    	System.out.println("***********socketClient was close");
+                    	client.close();
+                    }else{
+                    	String output = new String(buffer.array()).trim();  
+                        System.out.println("Message read from client: " + output); 
+                    }            
+                }else if (ky.isConnectable()){ //SelectionKey.OP_CONNECT
+                	 //never call here
+                	 //this option only use for Client side with SocketChannel
+                	 System.out.println("***********connectable");
                 }
-/*                else if (ky.isWritable()){
+/*                else if (ky.isWritable() ){ //SelectionKey.OP_WRITE
                 	
-                }*/
-                
+                }
+                */
                 System.out.println(itr.toString() );
                 itr.remove();  //remove event from Set
             } // end of while loop  

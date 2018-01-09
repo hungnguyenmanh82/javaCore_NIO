@@ -59,7 +59,7 @@ public class ServerSocketSelector {
 				int selectNow(): non-blocking (asynchronous) => return immediately
              */
             //Key: chính là Event. 
-            int numberOfEvent = selector.select();  // blocking 
+            int numberOfEvent = selector.select();  // blocking (có trường hợp trả về 0 luôn, đã test).
             System.out.println("The Number of selected keys are: " + numberOfEvent);  
             
             //===================== type of event is called SelectedKeys
@@ -90,14 +90,21 @@ public class ServerSocketSelector {
                 }  
                 else if (ky.isReadable()) {  //SelectionKey.OP_READ 
                     // Data is read from the client  
+                	System.out.println("***********readable");
+                    // Data is read from the client  
                     SocketChannel client = (SocketChannel) ky.channel();  
-                    ByteBuffer buffer = ByteBuffer.allocate(256);  
-                    client.read(buffer);  
-                    String output = new String(buffer.array()).trim();  
-                    System.out.println("Message read from client: " + output);  
-                    if (output.equals("Bye Bye")) {  
-                        client.close();  
-                        System.out.println("The Client messages are complete; close the session.");  
+                    
+                    ByteBuffer buffer = ByteBuffer.allocate(256);  // new buffer
+                    int numberByteRead = client.read(buffer);
+                    System.out.println("buffer.position() = "+ buffer.position());
+                    System.out.println("numberByteRead = "+ numberByteRead);
+                    
+                    if(numberByteRead== -1){ // socket was close
+                    	System.out.println("***********socketClient was close");
+                    	client.close();
+                    }else{
+                    	String output = new String(buffer.array()).trim();  
+                        System.out.println("Message read from client: " + output); 
                     }  
                 }
 /*                else if (ky.isWritable()){
