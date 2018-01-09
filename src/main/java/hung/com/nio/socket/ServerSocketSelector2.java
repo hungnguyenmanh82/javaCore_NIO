@@ -23,8 +23,8 @@ import java.util.Set;
  * 
  * Commandline từ: "D:\JEE_Workpace\NioTest\target\classes"
  */
-public class ServerSocketSelector {
-	public static void main(String args[]) throws IOException {
+public class ServerSocketSelector2 {
+	public static void main(String args[]) throws IOException, InterruptedException {
 		//=============Selector is used to manage Channels
 		Selector selector = Selector.open();
 		System.out.println("Selector is open for making connection: " + selector.isOpen());  
@@ -60,7 +60,7 @@ public class ServerSocketSelector {
              */
             //Key: chính là Event. 
             int numberOfEvent = selector.select();  // blocking 
-            System.out.println("The Number of selected keys are: " + numberOfEvent);  
+            System.out.println("The Number of selected keys are: numberOfEvent =" + numberOfEvent);  
             
             //===================== type of event is called SelectedKeys
             Set<SelectionKey> selectedKeys = selector.selectedKeys();  
@@ -74,6 +74,13 @@ public class ServerSocketSelector {
                     // The new client connection is accepted
                 	//here Buffer send/receiver of socket will be allocate (default 64k/64k)
                 	//if not process here, connect timeout will be control by OS to close the connection
+                	long startTime = System.currentTimeMillis();
+                	System.out.println("Connect Event from Client => not yet accepted: wait 2s " );
+                	         	
+                	Thread.sleep(2000); //check with ClientSocketSelector2
+                	System.out.println(" sleep = "+ (System.currentTimeMillis() - startTime) );
+                	
+                	//connect đã đc thiết lập bởi OS từ trc khi accept (đã test)
                     SocketChannel clientChannel = srvSocketChannel.accept();  
                     clientChannel.configureBlocking(false);  
                     /**
@@ -93,6 +100,8 @@ public class ServerSocketSelector {
                     SocketChannel client = (SocketChannel) ky.channel();  
                     ByteBuffer buffer = ByteBuffer.allocate(256);  
                     client.read(buffer);  
+                    System.out.println(buffer.position());
+                    
                     String output = new String(buffer.array()).trim();  
                     System.out.println("Message read from client: " + output);  
                     if (output.equals("Bye Bye")) {  
@@ -104,6 +113,7 @@ public class ServerSocketSelector {
                 	
                 }*/
                 
+                System.out.println(itr.toString() );
                 itr.remove();  //remove event from Set
             } // end of while loop  
         } // end of for loop  

@@ -1,5 +1,7 @@
 package hung.com.nio.file;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -97,7 +99,7 @@ public class FileChannelTest {
 	/**
 	 * Ko nên dùng cách này:  ByteBuffer buffer = ByteBuffer.allocateDirect(20 * 1024);
 	 */
-	public static void test_ReadableByteChannel_1() throws IOException{
+	public static void test_ReadableByteChannel_3() throws IOException{
 
 		// folder: "target/classes/testin.txt"   => test run app on Eclipse as Java app
 		URL url = FileChannelTest.class.getResource("/testin.txt");
@@ -107,21 +109,34 @@ public class FileChannelTest {
 		ReadableByteChannel src = input.getChannel(); 
 
 		//allocate memory for buffer in bytes => cách này gọi buffer.hasArray() = false
-		//Ko nên dùng cách này
-		ByteBuffer buffer = ByteBuffer.allocateDirect(20 * 1024);
+		//Ko nên dùng cách này (xem cách 2)
+		ByteBuffer buffer = ByteBuffer.allocateDirect(10); 
 		//dùng cách này hay hơn:
 		//		ByteBuffer buffer = ByteBuffer.wrap(new byte[20 * 1024]);
 
 		if( buffer.hasArray() == false){
-			System.out.println("Error: buffer does support byte array");
+			System.out.println("Error: buffer does support byte array: buffer.array() = null");
 		}
-		StringBuilder stringBuilder = new StringBuilder();
+		
+		
+		byte[] byteArray = new byte[20]; // = buffer.capacity()
 
 		//read asynchronous
 		while (src.read(buffer) != -1)   
-		{  
+		{  //0 <= mark <= position <= limit <= capacity
 			if(buffer.hasRemaining() == false){ //buffer full => position = limit = capacity
-				stringBuilder.append(new String(buffer.array()));
+				int capacity = buffer.capacity();
+				System.out.println("capacity = "+ capacity);
+				int position = buffer.position();
+				System.out.println("position = "+ position);
+				int remain = buffer.remaining();
+				System.out.println("remain = "+ remain);
+				//muốn đọc ra phải thay đổi position = 0 đã.
+				buffer.clear();  // this function doesnt erase buffer 
+				
+				//jump to this function => bản chất là copy byte to byte
+				buffer.get(byteArray, 0, position);			
+				System.out.println("full buffer:" + new String(byteArray));
 				buffer.clear(); //it not erase data. position = 0. limit = capacity.
 			}
 		}
@@ -131,10 +146,9 @@ public class FileChannelTest {
 			return;
 		}else{ //get data from buffer
 			//data from 0 to position
-			stringBuilder.append(new String(buffer.array(),0,buffer.position()));
+			buffer.get(byteArray, 0, buffer.position());
+			System.out.println("not full buffer" + new String(byteArray,0,buffer.position()));
 		}
-
-		System.out.println(stringBuilder.toString());
 
 		src.close();
 	}
@@ -154,7 +168,7 @@ public class FileChannelTest {
 		ReadableByteChannel src = input.getChannel(); 
 
 		//allocate memory for buffer in bytes
-		ByteBuffer buffer = ByteBuffer.wrap(new byte[20 * 1024]);
+		ByteBuffer buffer = ByteBuffer.wrap(new byte[20 * 1024]); //= ByteBuffer.allocate(256)
 
 		if( buffer.hasArray() == false){
 			System.out.println("Error: buffer does support byte array");
@@ -165,7 +179,7 @@ public class FileChannelTest {
 
 		//read asynchronous
 		while (src.read(buffer) != -1)   
-		{  
+		{   //0 <= mark <= position <= limit <= capacity
 			if(buffer.hasRemaining() == false){ //buffer full => position = limit = capacity
 				stringBuilder.append(new String(buffer.array()));
 				buffer.clear(); //it not erase data. position = 0. limit = capacity.
@@ -182,6 +196,53 @@ public class FileChannelTest {
 
 		src.close();
 		System.out.println(stringBuilder.toString());
+	}
+	
+	/**
+	 * nên dùng cách này sẽ tối ưu hóa memory hơn:
+	 * 
+	 * ByteBuffer buffer = ByteBuffer.wrap(new byte[20 * 1024]) = ByteBuffer.allocate(256); (đã test)
+	 */
+	public static void test_ReadableByteChannel_1() throws IOException{
+
+		// folder: "target/classes/testin.txt"   => test run app on Eclipse as Java app
+		URL url = FileChannelTest.class.getResource("/testin.txt");
+		System.out.println("url="+url.getPath());
+
+		FileInputStream input = new FileInputStream (url.getPath()); 
+		ReadableByteChannel src = input.getChannel(); 
+
+		//allocate memory for buffer in bytes
+		ByteBuffer buffer = ByteBuffer.wrap(new byte[20 * 1024]); //= ByteBuffer.allocate(256)
+
+		if( buffer.hasArray() == false){
+			System.out.println("Error: buffer does support byte array");
+		}else{
+			System.out.println("Ok: buffer does support byte array");
+		}
+		
+		//convert bytes to byte array
+		ByteArrayOutputStream byteArray = new ByteArrayOutputStream();
+
+		//read asynchronous
+		while (src.read(buffer) != -1)   
+		{   //0 <= mark <= position <= limit <= capacity
+			if(buffer.hasRemaining() == false){ //buffer full => position = limit = capacity
+				byteArray.write(buffer.array(), 0, buffer.position());			
+				buffer.clear(); //it not erase data. position = 0. limit = capacity.
+			}
+		}
+
+		if(buffer.position() == 0){
+			//have no data in buffer
+			return;
+		}else{ //get data from buffer
+			//data from 0 to position
+			byteArray.write(buffer.array(), 0, buffer.position());
+		}
+
+		src.close();
+		System.out.println(byteArray.toString());
 	}
 
 	/**

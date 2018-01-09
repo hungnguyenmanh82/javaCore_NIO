@@ -10,14 +10,27 @@ import java.nio.channels.SocketChannel;
  * + step1: run ServerSocketSelector app first
  * + step2: run ClientSocketSelector app after that
  * + cần xem vd FileChannelTest để hiểu rõ về cách dùng NIO Buffer (vd: ByteBuffer, charBuffer...)
+ * 
+ * Phải run bằng commandline mới đc.
+ * + step1: run ServerSocketSelector app first (it waits for Client connect)
+ *    >>java hung.com.nio.socket.ServerSocketSelector
+ *    
+ * + step2: run ClientSocketSelector app after that (run from eclipse if you want to debug)
+ *   >>java hung.com.nio.socket.ClientSocketSelectorSyn
  */
-public class ClientSocketSelector {
+public class ClientSocketSelectorSyn {
 	public static void main (String [] args)  throws IOException, InterruptedException {  
 		InetSocketAddress inetSocketAddress = new InetSocketAddress("localhost", 8080);  //lưu ý port 8080 on Server
 		
-		//channel để dùng non-blocking (or asynchronous)
-		SocketChannel client = SocketChannel.open(inetSocketAddress);  
-		System.out.println("The Client is sending messages to server...");  
+		//
+		long startTime = System.currentTimeMillis();
+		System.out.println("open() connect = " + startTime);
+		SocketChannel client = SocketChannel.open(inetSocketAddress); //connect synchronous 
+		System.out.println("time connect = " + (System.currentTimeMillis() - startTime));
+		
+		boolean isBlock = client.isBlocking();  //default = true
+		System.out.println("is channel blocking = "+ isBlock);  //= default = true
+		System.out.println("The Client was connected to server:");  
 		// Sending messages to the server
 		
 		

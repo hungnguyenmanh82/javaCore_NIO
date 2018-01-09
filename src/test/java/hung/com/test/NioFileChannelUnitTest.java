@@ -28,6 +28,13 @@ public class NioFileChannelUnitTest {
     	
     	Assert.assertEquals(1, 1);
     }
+    
+    @Test
+    public void test_ReadableByteChannel_3() throws IOException {
+    	FileChannelTest.test_ReadableByteChannel_3();
+    	
+    	Assert.assertEquals(1, 1);
+    }
 
     @Test
     public void test_WritableByteChannel_1() throws IOException {
