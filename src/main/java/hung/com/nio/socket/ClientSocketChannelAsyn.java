@@ -33,7 +33,7 @@ public class ClientSocketChannelAsyn {
 		System.out.println("is channel blocking = "+ isBlock);  //= false (là non-blocking ở trên)
 
 		//asynchronous connect will return immediately 
-		boolean connected = socketChannel.connect(inetSocketAddress); // not connect here		
+		boolean connected = socketChannel.connect(inetSocketAddress); // not yet connect here		
 		System.out.println("connect state = " + connected);
 		System.out.println("pending state = " + socketChannel.isConnectionPending());
 
@@ -58,8 +58,7 @@ public class ClientSocketChannelAsyn {
 			buffer.clear();  
 			Thread.sleep(3000);  
 		}
-		socketChannel.shutdownInput();
-		socketChannel.shutdownOutput();
+
 		socketChannel.close();               
 	}  
 }

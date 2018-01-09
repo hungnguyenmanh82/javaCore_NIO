@@ -49,8 +49,9 @@ public class ServerSocketSelector2 {
         // serversocket ko dùng 3 event còn lại ở trên => 3 event còn lại dùng cho ClientSocket
         int ops = srvSocketChannel.validOps();  //SelectionKey.OP_ACCEPT
        //đăng ký với OS bắt event của serverSocket: SelectionKey.OP_ACCEPT và gửi cho Selector
-        SelectionKey selectKy = srvSocketChannel.register(selector, ops, null);  
+        SelectionKey selectKy = srvSocketChannel.register(selector, ops, null);    // selectKy.cancel() to unregister this Channel
         
+      //===================== catch callback Event from OS via Selector here =========
         for (;;) {  
             System.out.println("Waiting for the select operation...");  
             /**
