@@ -41,7 +41,7 @@ public class ClientSocketChannelSyn {
 			client.write(buffer);  
 			System.out.println(msg [j]);  
 			buffer.clear();  
-			Thread.sleep(3000);  
+			Thread.sleep(9000);  
 		}  
 		client.close();               
 	}  
