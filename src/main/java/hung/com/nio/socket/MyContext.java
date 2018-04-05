@@ -7,7 +7,9 @@ import java.nio.channels.SocketChannel;
 /**
  * đây chính là attached Object gắn với 1 Socket khi đăng ký với OS.
  * Mục đính khi có sự kiện asynchronous event => thì cần xử lý event này với attched Object
- *
+ * Mỗi Context sẽ gắn với 1 event loop Handler. các event ở đây phải đc xử lý tuần tự vì nó phụ thuộc
+ * 1 Thread trong thread Pool sẽ đc assign để thực hiện các event loop này
+ * 1 Thread trong Thread Pool có thể đc assign để thực hiện nhiều event loops cùng lúc (VertX làm vậy)
  */
 public class MyContext {
 	private SocketChannel clientSocket;
