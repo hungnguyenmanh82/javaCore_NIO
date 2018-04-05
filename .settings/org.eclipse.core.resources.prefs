@@ -5,5 +5,6 @@ encoding//src/main/java/hung/com/nio/socket/ClientSocketChannelAsyn2.java=UTF-8
 encoding//src/main/java/hung/com/nio/socket/ClientSocketChannelSyn.java=UTF-8
 encoding//src/main/java/hung/com/nio/socket/ClientSocketChannelSyn1.java=UTF-8
 encoding//src/main/java/hung/com/nio/socket/ClientSocketSelector.java=UTF-8
+encoding//src/main/java/hung/com/nio/socket/MyContext.java=UTF-8
 encoding//src/main/java/hung/com/nio/socket/ServerSocketSelector.java=UTF-8
 encoding//src/main/java/hung/com/nio/socket/ServerSocketSelector2.java=UTF-8

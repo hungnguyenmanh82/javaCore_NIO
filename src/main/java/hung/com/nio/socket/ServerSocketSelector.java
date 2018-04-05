@@ -75,6 +75,7 @@ public class ServerSocketSelector {
                     // The new client connection is accepted
                 	//here Buffer send/receiver of socket will be allocate (default 64k/64k)
                 	//if not process here, connect timeout will be control by OS to close the connection
+                	//khi lấy đc client bắt buộc phải Map với 1 Context bằng HashMap 
                     SocketChannel clientChannel = srvSocketChannel.accept();  
                     clientChannel.configureBlocking(false);  
                     /**
@@ -92,7 +93,11 @@ public class ServerSocketSelector {
                 else if (ky.isReadable()) {  //SelectionKey.OP_READ 
                     // Data is read from the client  
                 	System.out.println("***********readable");
-                    // Data is read from the client  
+                    // Data is read from the client
+                	//tìm lại Context của client trong HashMap để xử lý
+                	//Đọc và ghi là 2 quá trình độc lập có thể thực thi trên 2 thread riêng
+                	//quá trình đọc asynchronous có thể cố định buffer size, đọc nhiều lần (ByteBuf size < socket buffer size)
+                	//VertX và Netty cũng làm vậy
                     SocketChannel client = (SocketChannel) ky.channel();  
                     
                     ByteBuffer buffer = ByteBuffer.allocate(256);  // new buffer

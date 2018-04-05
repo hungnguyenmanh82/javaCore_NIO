@@ -50,6 +50,7 @@ public class ServerSocketSelector2 {
         int ops = srvSocketChannel.validOps();  //SelectionKey.OP_ACCEPT
        //đăng ký với OS bắt event của serverSocket: SelectionKey.OP_ACCEPT và gửi cho Selector
         SelectionKey selectKy = srvSocketChannel.register(selector, ops, null);    // selectKy.cancel() to unregister this Channel
+//        SelectionKey register(Selector sel, int ops, Object att) => att = attached Object của user
         
       //===================== catch callback Event from OS via Selector here =========
         for (;;) {  
@@ -69,20 +70,25 @@ public class ServerSocketSelector2 {
             
             //browser all Event of Set
             while (itr.hasNext()) {  
-                SelectionKey ky = (SelectionKey) itr.next();  
+                SelectionKey ky = (SelectionKey) itr.next();
+                
+                //ky.attachment()
                 if (ky.isAcceptable()) {  //SelectionKey.OP_ACCEPT 
                     // The new client connection is accepted
                 	//here Buffer send/receiver of socket will be allocate (default 64k/64k)
                 	//if not process here, connect timeout will be control by OS to close the connection
+                	//khi lấy đc client bắt buộc phải Map với 1 Context bằng HashMap 
                 	long startTime = System.currentTimeMillis();
                 	System.out.println("Connect Event from Client => not yet accepted: wait 2s " );
                 	         	
-                	Thread.sleep(2000); //check with ClientSocketSelector2
+                	Thread.sleep(2000); //check with ClientSocketSelector2 để test connect đã kết nối bởi OS chưa.
                 	System.out.println(" sleep = "+ (System.currentTimeMillis() - startTime) );
                 	
                 	//connect đã đc thiết lập bởi OS từ trc khi accept (đã test với client đã có connect trc khi accept).
                     SocketChannel clientChannel = srvSocketChannel.accept();  
                     clientChannel.configureBlocking(false);  
+                    
+                    MyContext myContext = new MyContext(clientChannel);
                     /**
                      * SelectionKey.OP_ACCEPT    => only for Server
                      * SelectionKey.OP_CONNECT   => only for client  (server OP_ACCEPT mean Connected)
@@ -91,37 +97,32 @@ public class ServerSocketSelector2 {
                      * 
                      */
 //                    clientChannel.validOps();  // = SelectionKey.OP_READ | SelectionKey.OP_WRITE | SelectionKey.OP_CONNECT
-                    clientChannel.register(selector, SelectionKey.OP_READ|SelectionKey.OP_CONNECT);  
+                    
+                    clientChannel.register(selector, SelectionKey.OP_READ|SelectionKey.OP_CONNECT, myContext);  
 //                    clientChannel.register(selector, SelectionKey.OP_READ|SelectionKey.OP_WRITE); 
                     System.out.println("The new connection is accepted from the client: " + clientChannel);  
                 }  
                 else if (ky.isReadable()) {  //SelectionKey.OP_READ 
                 	System.out.println("***********readable");
                     // Data is read from the client  
-                    SocketChannel client = (SocketChannel) ky.channel();  
-
-                    ByteBuffer buffer = ByteBuffer.allocate(256);  // new buffer
+                	//tìm lại Context của client trong HashMap để xử lý
+                	//Đọc và ghi là 2 quá trình độc lập có thể thực thi trên 2 thread riêng
+                	//quá trình đọc asynchronous có thể cố định buffer size, đọc nhiều lần (ByteBuf size < socket buffer size)
+                	//VertX và Netty cũng làm vậy
+                    SocketChannel clientSocket = (SocketChannel) ky.channel();                 
+                    MyContext att = (MyContext)ky.attachment();
                     
-                    int numberByteRead = client.read(buffer);
-                    System.out.println("buffer.position() = "+ buffer.position());
-                    System.out.println("numberByteRead = "+ numberByteRead);
-                    
-                    if(numberByteRead== -1){ // socket was close
-                    	System.out.println("***********socketClient was close");
-                    	client.close();
-                    }else{
-                    	String output = new String(buffer.array()).trim();  
-                        System.out.println("Message read from client: " + output); 
-                    }            
+                    att.readSocket();
+          
                 }else if (ky.isConnectable()){ //SelectionKey.OP_CONNECT
                 	 //never call here
                 	 //this option only use for Client side with SocketChannel
                 	 System.out.println("***********connectable");
+                } else if (ky.isWritable() ){ //SelectionKey.OP_WRITE
+                	MyContext att = (MyContext)ky.attachment();
+                	att.writeSocket();
                 }
-/*                else if (ky.isWritable() ){ //SelectionKey.OP_WRITE
-                	
-                }
-                */
+                
                 System.out.println(itr.toString() );
                 itr.remove();  //remove event from Set
             } // end of while loop  
