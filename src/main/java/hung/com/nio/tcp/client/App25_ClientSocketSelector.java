@@ -1,4 +1,4 @@
-package hung.com.nio.socket;
+package hung.com.nio.tcp.client;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -20,7 +20,7 @@ import java.util.Set;
  * + step2: run ClientSocketSelector app after that (run from eclipse if you want to debug)
  *   >>java hung.com.nio.socket.ClientSocketSelector
  */
-public class ClientSocketSelector {
+public class App25_ClientSocketSelector {
 	public static void main (String [] args)  throws IOException, InterruptedException {  
 		InetSocketAddress inetSocketAddress = new InetSocketAddress("localhost", 8080);  //lưu ý port 8080 on Server
 

@@ -1,4 +1,4 @@
-package hung.com.nio.socket;
+package hung.com.nio.tcp.client;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;

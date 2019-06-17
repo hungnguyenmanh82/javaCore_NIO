@@ -1,4 +1,4 @@
-package hung.com.nio.socket;
+package hung.com.nio.tcp.client;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -11,14 +11,10 @@ import java.nio.channels.SocketChannel;
  * + step2: run ClientSocketSelector app after that
  * + cần xem vd FileChannelTest để hiểu rõ về cách dùng NIO Buffer (vd: ByteBuffer, charBuffer...)
  * 
- * Phải run bằng commandline mới đc.
- * + step1: run ServerSocketSelector app first (it waits for Client connect)
- *    >>java hung.com.nio.socket.ServerSocketSelector
- *    
- * + step2: run ClientSocketSelector app after that (run from eclipse if you want to debug)
- *   >>java hung.com.nio.socket.ClientSocketChannelSyn1
+ * cách 1: xem cách dùng Maven để build Jar file include thư viện và run commandline dễ hơn nhiều để nhìn console
+ * cach 2: Mỗi app Eclipse sẽ open tren 1 console rieng đc (để ý góc trên bên trái Console có các nút bấm)
  */
-public class ClientSocketChannelSyn1 {
+public class App24_ClientSocketChannelSyn1 {
 	public static void main (String [] args)  throws IOException, InterruptedException {  
 		InetSocketAddress inetSocketAddress = new InetSocketAddress("localhost", 8080);  //lưu ý port 8080 on Server
 		
